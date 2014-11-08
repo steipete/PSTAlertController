@@ -149,9 +149,10 @@
     self.actions = [[NSArray arrayWithArray:self.actions] arrayByAddingObject:action];
 
     if ([self alertControllerAvailable]) {
-        __weak typeof (self) weakSelf = self;
+        __weak __typeof__ ((self)) weakSelf = self;
         UIAlertAction *alertAction = [UIAlertAction actionWithTitle:action.title style:(UIAlertActionStyle)action.style handler:^(UIAlertAction *uiAction) {
-            weakSelf.executedAlertAction = action;
+			__strong __typeof__ ((weakSelf)) strongSelf = weakSelf;
+            strongSelf.executedAlertAction = action;
             [action performAction];
         }];
         [self.alertController addAction:alertAction];
@@ -255,14 +256,14 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
         }
 
         // Hook up dismiss blocks.
-        __weak typeof (self) weakSelf = self;
+		__weak __typeof__ ((self)) weakSelf = self;
         actionController.viewWillDisappearBlock = ^{
-            typeof (self) strongSelf = weakSelf;
+			__strong __typeof__ ((weakSelf)) strongSelf = weakSelf;
             [strongSelf performBlocks:PROPERTY(willDismissBlocks) withAction:strongSelf.executedAlertAction];
             PSPDFVisibleAlertsCount--;
         };
         actionController.viewDidDisappearBlock = ^{
-            typeof (self) strongSelf = weakSelf;
+			__strong __typeof__ ((weakSelf)) strongSelf = weakSelf;
             [strongSelf performBlocks:PROPERTY(didDismissBlocks) withAction:strongSelf.executedAlertAction];
         };
 
