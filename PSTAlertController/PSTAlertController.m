@@ -49,12 +49,12 @@
 
 @end
 
-@interface PSPDFExtendedAlertController : UIAlertController
+@interface PSTExtendedAlertController : UIAlertController
 @property (nonatomic, copy) void (^viewWillDisappearBlock)(void);
 @property (nonatomic, copy) void (^viewDidDisappearBlock)(void);
 @end
 
-@implementation PSPDFExtendedAlertController
+@implementation PSTExtendedAlertController
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
@@ -75,7 +75,7 @@
 @property (nonatomic, copy) NSArray *didDismissBlocks;
 
 // iOS 8
-@property (nonatomic, strong) PSPDFExtendedAlertController *alertController;
+@property (nonatomic, strong) PSTExtendedAlertController *alertController;
 
 // Universal
 @property (nonatomic, weak) PSTAlertAction *executedAlertAction;
@@ -111,7 +111,7 @@
         _preferredStyle = preferredStyle;
 
         if ([self alertControllerAvailable]) {
-            _alertController = [PSPDFExtendedAlertController alertControllerWithTitle:title message:message preferredStyle:(UIAlertControllerStyle)preferredStyle];
+            _alertController = [PSTExtendedAlertController alertControllerWithTitle:title message:message preferredStyle:(UIAlertControllerStyle)preferredStyle];
         } else {
             if (preferredStyle == PSTAlertControllerStyleActionSheet) {
                 _strongSheetStorage = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
@@ -237,7 +237,7 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
             controller = controller ?: UIApplication.sharedApplication.keyWindow.rootViewController;
         }
 
-        PSPDFExtendedAlertController *actionController = self.alertController;
+        PSTExtendedAlertController *actionController = self.alertController;
         UIPopoverPresentationController *popoverPresentationController = actionController.popoverPresentationController;
         if (popoverPresentationController) { // nil on iPhone
             if ([sender isKindOfClass:UIBarButtonItem.class]) {
