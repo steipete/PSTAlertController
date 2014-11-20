@@ -235,6 +235,11 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
         // As a convenience, allow automatic root view controller fetching if we show an alert.
         if (self.preferredStyle == PSTAlertControllerStyleAlert) {
             controller = controller ?: UIApplication.sharedApplication.keyWindow.rootViewController;
+			
+			// use the frontmost viewController for presentation
+			while (controller.presentedViewController) {
+				controller = controller.presentedViewController;
+			}
         }
 
         PSTExtendedAlertController *actionController = self.alertController;
