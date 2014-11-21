@@ -362,8 +362,8 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Execute Actions
 
-- (PSTAlertAction *)actionForButtonIndex:(NSUInteger)index {
-    return self.actions[index];
+- (PSTAlertAction *)actionForButtonIndex:(NSInteger)index {
+    return (index >= 0) ? self.actions[index] : nil;
 }
 
 - (void)performBlocks:(NSString *)blocksStorageName withAction:(PSTAlertAction *)alertAction {
