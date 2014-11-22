@@ -39,6 +39,7 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 @class PSTAlertController;
 
+// Defines a single button/action.
 @interface PSTAlertAction : NSObject
 + (instancetype)actionWithTitle:(NSString *)title style:(PSTAlertActionStyle)style handler:(void (^)(PSTAlertAction *action))handler;
 + (instancetype)actionWithTitle:(NSString *)title handler:(void (^)(PSTAlertAction *action))handler;
@@ -93,6 +94,9 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 // Convenience. Presents a simple alert with a "Dismiss" button.
 // Will use the root view controller if `controller` is nil.
 + (instancetype)presentDismissableAlertWithTitle:(NSString *)title message:(NSString *)message controller:(UIViewController *)controller;
+
+// Variant that will present an error.
++ (instancetype)presentDismissableAlertWithTitle:(NSString *)title error:(NSError *)error controller:(UIViewController *)controller;
 
 // From Apple's HIG:
 // In a two-button alert that proposes a potentially risky action, the button that cancels the action should be on the right (and light-colored).

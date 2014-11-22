@@ -68,7 +68,11 @@
 
 @end
 
-@interface PSTAlertController () <UIActionSheetDelegate, UIAlertViewDelegate>
+@interface PSTAlertController () <UIActionSheetDelegate, UIAlertViewDelegate> {
+    struct {
+        unsigned int isShowingAlert:1;
+    } _flags;
+}
 - (instancetype)initWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle NS_DESIGNATED_INITIALIZER;
 
 @property (nonatomic, copy) NSArray *willDismissBlocks;
@@ -113,11 +117,13 @@
         if ([self alertControllerAvailable]) {
             _alertController = [PSTExtendedAlertController alertControllerWithTitle:title message:message preferredStyle:(UIAlertControllerStyle)preferredStyle];
         } else {
+#if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
             if (preferredStyle == PSTAlertControllerStyleActionSheet) {
                 _strongSheetStorage = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
             } else {
                 _strongSheetStorage = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
             }
+#endif
         }
     }
     return self;
@@ -125,6 +131,12 @@
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"<%@: %p, title:%@, actions:%@>", NSStringFromClass(self.class), self, self.title, self.actions];
+}
+
+- (void)dealloc {
+    // In case the alert controller can't be displayed for any reason,
+    // We'd still increment the counter and need to do the cleanup work here.
+    [self setIsShowingAlert:NO];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -157,19 +169,19 @@
         [self.alertController addAction:alertAction];
     } else {
         if (self.preferredStyle == PSTAlertControllerStyleActionSheet) {
-            NSUInteger index = [self.actionSheet addButtonWithTitle:action.title];
+            NSUInteger currentButtonIndex = [self.actionSheet addButtonWithTitle:action.title];
 
             if (action.style == PSTAlertActionStyleDestructive) {
-                self.actionSheet.destructiveButtonIndex = index;
+                self.actionSheet.destructiveButtonIndex = currentButtonIndex;
             } else if (action.style == PSTAlertActionStyleCancel) {
-                self.actionSheet.cancelButtonIndex = index;
+                self.actionSheet.cancelButtonIndex = currentButtonIndex;
             }
         } else {
-            NSUInteger index = [self.alertView addButtonWithTitle:action.title];
+            NSUInteger currentButtonIndex = [self.alertView addButtonWithTitle:action.title];
 
             // UIAlertView doesn't support destructive buttons.
             if (action.style == PSTAlertActionStyleCancel) {
-                self.alertView.cancelButtonIndex = index;
+                self.alertView.cancelButtonIndex = currentButtonIndex;
             }
         }
     }
@@ -213,9 +225,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Presentation
 
-static NSUInteger PSPDFVisibleAlertsCount = 0;
+static NSUInteger PSTVisibleAlertsCount = 0;
 + (BOOL)hasVisibleAlertController {
-    return PSPDFVisibleAlertsCount > 0;
+    return PSTVisibleAlertsCount > 0;
 }
 
 - (BOOL)isVisible {
@@ -234,40 +246,68 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
     if ([self alertControllerAvailable]) {
         // As a convenience, allow automatic root view controller fetching if we show an alert.
         if (self.preferredStyle == PSTAlertControllerStyleAlert) {
-            controller = controller ?: UIApplication.sharedApplication.keyWindow.rootViewController;
+            if (!controller) {
+                // sharedApplication is unavailable for extensions, but required for things like preferredContentSizeCategory.
+                UIApplication *sharedApplication = [UIApplication performSelector:NSSelectorFromString(PROPERTY(sharedApplication))];
+                controller = sharedApplication.keyWindow.rootViewController;
+            }
+
+            // Use the frontmost viewController for presentation.
+            while (controller.presentedViewController) {
+                controller = controller.presentedViewController;
+            }
+
+            if (!controller) {
+                NSLog(@"Can't show alert because there is no root view controller.");
+                return;
+            }
         }
 
-        PSTExtendedAlertController *actionController = self.alertController;
-        UIPopoverPresentationController *popoverPresentationController = actionController.popoverPresentationController;
-        if (popoverPresentationController) { // nil on iPhone
+        // We absolutely need a controller going forward.
+        NSParameterAssert(controller);
+
+        PSTExtendedAlertController *alertController = self.alertController;
+        UIPopoverPresentationController *popoverPresentation = alertController.popoverPresentationController;
+        if (popoverPresentation) { // nil on iPhone
             if ([sender isKindOfClass:UIBarButtonItem.class]) {
-                popoverPresentationController.barButtonItem = sender;
+                popoverPresentation.barButtonItem = sender;
             } else if ([sender isKindOfClass:UIView.class]) {
-                popoverPresentationController.sourceView = sender;
-                popoverPresentationController.sourceRect = [sender bounds];
+                popoverPresentation.sourceView = sender;
+                popoverPresentation.sourceRect = [sender bounds];
             } else if ([sender isKindOfClass:NSValue.class]) {
-                popoverPresentationController.sourceView = controller.view;
-                popoverPresentationController.sourceRect = [sender CGRectValue];
+                popoverPresentation.sourceView = controller.view;
+                popoverPresentation.sourceRect = [sender CGRectValue];
             } else {
-                popoverPresentationController.sourceView = controller.view;
-                popoverPresentationController.sourceRect = controller.view.bounds;
+                popoverPresentation.sourceView = controller.view;
+                popoverPresentation.sourceRect = controller.view.bounds;
+            }
+
+            // Workaround for rdar://18921595. Unsatisfiable constraints when presenting UIAlertController.
+            // If the rect is too large, the action sheet can't be displayed.
+            CGRect r = popoverPresentation.sourceRect, screen = UIScreen.mainScreen.bounds;
+            if (CGRectGetHeight(r) > CGRectGetHeight(screen)*0.5 || CGRectGetWidth(r) > CGRectGetWidth(screen)*0.5) {
+                popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height/2.f, 1.f, 1.f);
             }
         }
 
         // Hook up dismiss blocks.
         __weak typeof (self) weakSelf = self;
-        actionController.viewWillDisappearBlock = ^{
+        alertController.viewWillDisappearBlock = ^{
             typeof (self) strongSelf = weakSelf;
             [strongSelf performBlocks:PROPERTY(willDismissBlocks) withAction:strongSelf.executedAlertAction];
-            PSPDFVisibleAlertsCount--;
+            [strongSelf setIsShowingAlert:NO];
         };
-        actionController.viewDidDisappearBlock = ^{
+        alertController.viewDidDisappearBlock = ^{
             typeof (self) strongSelf = weakSelf;
             [strongSelf performBlocks:PROPERTY(didDismissBlocks) withAction:strongSelf.executedAlertAction];
         };
 
-        objc_setAssociatedObject(controller, _cmd, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC); // bind lifetime
-        [controller presentViewController:actionController animated:animated completion:completion];
+        [controller presentViewController:alertController animated:animated completion:^{
+            // Bild lifetime of self to the controller.
+            // Will not be called if presenting fails because another present/dismissal already happened during that runloop.
+            // rdar://problem/19045528
+            objc_setAssociatedObject(controller, _cmd, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        }];
 
     } else {
         if (self.preferredStyle == PSTAlertControllerStyleActionSheet) {
@@ -282,7 +322,18 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
             [self moveSheetToWeakStorage];
         }
     }
-    PSPDFVisibleAlertsCount++;
+    [self setIsShowingAlert:YES];
+}
+
+- (void)setIsShowingAlert:(BOOL)isShowing {
+    if (_flags.isShowingAlert != isShowing) {
+        _flags.isShowingAlert = isShowing;
+        if (isShowing) {
+            PSTVisibleAlertsCount++;
+        } else {
+            PSTVisibleAlertsCount--;
+        }
+    }
 }
 
 - (void)showActionSheetWithSender:(id)sender fallbackView:(UIView *)view animated:(BOOL)animated {
@@ -362,8 +413,8 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Execute Actions
 
-- (PSTAlertAction *)actionForButtonIndex:(NSUInteger)index {
-    return self.actions[index];
+- (PSTAlertAction *)actionForButtonIndex:(NSInteger)index {
+    return index >= 0 ? self.actions[index] : nil;
 }
 
 - (void)performBlocks:(NSString *)blocksStorageName withAction:(PSTAlertAction *)alertAction {
@@ -383,7 +434,7 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
     [self performBlocks:PROPERTY(willDismissBlocks) withAction:action];
     self.willDismissBlocks = nil;
 
-    PSPDFVisibleAlertsCount--;
+    [self setIsShowingAlert:NO];
 }
 
 - (void)viewDidDismissWithButtonIndex:(NSInteger)buttonIndex {
@@ -437,6 +488,15 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
     [alertController addAction:[PSTAlertAction actionWithTitle:NSLocalizedString(@"Dismiss", @"") style:PSTAlertActionStyleCancel handler:NULL]];
     [alertController showWithSender:nil controller:controller animated:YES completion:NULL];
     return alertController;
+}
+
++ (instancetype)presentDismissableAlertWithTitle:(NSString *)title error:(NSError *)error controller:(UIViewController *)controller {
+    NSString *message = error.localizedDescription;
+    if (error.localizedFailureReason.length > 0) {
+        message = [NSString stringWithFormat:@"%@ (%@)", error.localizedDescription, error.localizedFailureReason];
+    }
+
+    return [self presentDismissableAlertWithTitle:title message:message controller:controller];
 }
 
 - (void)addCancelActionWithHandler:(void (^)(PSTAlertAction *action))handler {
