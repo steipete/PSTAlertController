@@ -233,14 +233,14 @@ static NSUInteger PSPDFVisibleAlertsCount = 0;
 - (void)showWithSender:(id)sender controller:(UIViewController *)controller animated:(BOOL)animated completion:(void (^)(void))completion {
     if ([self alertControllerAvailable]) {
         // As a convenience, allow automatic root view controller fetching if we show an alert.
-        if (self.preferredStyle == PSTAlertControllerStyleAlert) {
-            controller = controller ?: UIApplication.sharedApplication.keyWindow.rootViewController;
+		if (self.preferredStyle == PSTAlertControllerStyleAlert && !controller) {
+			controller = UIApplication.sharedApplication.keyWindow.rootViewController;
 			
 			// use the frontmost viewController for presentation
 			while (controller.presentedViewController) {
 				controller = controller.presentedViewController;
 			}
-        }
+		}
 
         PSTExtendedAlertController *actionController = self.alertController;
         UIPopoverPresentationController *popoverPresentationController = actionController.popoverPresentationController;
