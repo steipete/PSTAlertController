@@ -13,8 +13,14 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+}
 
-    [self doTheDance];
+- (IBAction)testButtonPressed:(UIButton *)sender {
+    PSTAlertController *controller = [PSTAlertController actionSheetWithTitle:nil];
+    [controller addAction:[PSTAlertAction actionWithTitle:@"OK" style:PSTAlertActionStyleDestructive handler:nil]];
+    // Cancel action on a sheet should be the last action.
+    [controller addAction:[PSTAlertAction actionWithTitle:@"cancel" style:PSTAlertActionStyleCancel handler:nil]];
+    [controller showWithSender:sender arrowDirection:UIPopoverArrowDirectionAny controller:self animated:YES completion:nil];
 }
 
 - (void)doTheDance {
