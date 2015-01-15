@@ -243,6 +243,10 @@ static NSUInteger PSTVisibleAlertsCount = 0;
 }
 
 - (void)showWithSender:(id)sender controller:(UIViewController *)controller animated:(BOOL)animated completion:(void (^)(void))completion {
+    [self showWithSender:sender arrowDirection:UIPopoverArrowDirectionAny controller:controller animated:animated completion:completion];
+}
+
+- (void)showWithSender:(id)sender arrowDirection:(UIPopoverArrowDirection)arrowDirection controller:(UIViewController *)controller animated:(BOOL)animated completion:(void (^)(void))completion {
     if ([self alertControllerAvailable]) {
         // As a convenience, allow automatic root view controller fetching if we show an alert.
         if (self.preferredStyle == PSTAlertControllerStyleAlert) {
@@ -285,9 +289,22 @@ static NSUInteger PSTVisibleAlertsCount = 0;
             // Workaround for rdar://18921595. Unsatisfiable constraints when presenting UIAlertController.
             // If the rect is too large, the action sheet can't be displayed.
             CGRect r = popoverPresentation.sourceRect, screen = UIScreen.mainScreen.bounds;
-            if (CGRectGetHeight(r) > CGRectGetHeight(screen)*0.5 || CGRectGetWidth(r) > CGRectGetWidth(screen)*0.5) {
-                popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height/2.f, 1.f, 1.f);
-            }
+            UIPopoverPresentationController *popover = controller.popoverPresentationController;
+                popover.permittedArrowDirections = arrowDirection;
+                switch (arrowDirection) {
+                    case UIPopoverArrowDirectionDown:
+                        popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2, r.origin.y, 1, 1);
+                        break;
+                    case UIPopoverArrowDirectionUp:
+                        popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2, r.origin.y + r.size.height, 1, 1);
+                        break;
+                    // Left and right is too buggy.
+                    default:
+                        if (CGRectGetHeight(r) > CGRectGetHeight(screen)*0.5 || CGRectGetWidth(r) > CGRectGetWidth(screen)*0.5) {
+                            popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height/2.f, 1.f, 1.f);
+                        }
+                        break;
+                }
         }
 
         // Hook up dismiss blocks.
