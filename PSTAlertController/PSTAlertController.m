@@ -298,12 +298,7 @@ static NSUInteger PSTVisibleAlertsCount = 0;
                     case UIPopoverArrowDirectionUp:
                         popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2, r.origin.y + r.size.height, 1, 1);
                         break;
-                    case UIPopoverArrowDirectionLeft:
-                        popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width, r.origin.y + r.size.height/2, 1, 1);
-                        break;
-                    case UIPopoverArrowDirectionRight:
-                        popoverPresentation.sourceRect = CGRectMake(r.origin.x, r.origin.y + r.size.height/2, 1, 1);
-                        break;
+                    // Left and right is too buggy.
                     default:
                         if (CGRectGetHeight(r) > CGRectGetHeight(screen)*0.5 || CGRectGetWidth(r) > CGRectGetWidth(screen)*0.5) {
                             popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height/2.f, 1.f, 1.f);
