@@ -14,6 +14,7 @@
 		78E298941A0D0071007953FB /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 78E298931A0D0071007953FB /* Images.xcassets */; };
 		78E298971A0D0071007953FB /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78E298951A0D0071007953FB /* LaunchScreen.xib */; };
 		78E298B21A0D0B25007953FB /* PSTAlertController.m in Sources */ = {isa = PBXBuildFile; fileRef = 78E298B11A0D0B25007953FB /* PSTAlertController.m */; };
+		B87AF4971A67D76C00022878 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B87AF4961A67D76C00022878 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 		78E298A21A0D0071007953FB /* PSTAlertViewControllerSampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PSTAlertViewControllerSampleTests.m; sourceTree = "<group>"; };
 		78E298B01A0D0B25007953FB /* PSTAlertController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PSTAlertController.h; sourceTree = "<group>"; };
 		78E298B11A0D0B25007953FB /* PSTAlertController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PSTAlertController.m; sourceTree = "<group>"; };
+		B87AF4961A67D76C00022878 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B87AF4971A67D76C00022878 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +50,7 @@
 		78E2987A1A0D0071007953FB = {
 			isa = PBXGroup;
 			children = (
+				B87AF4961A67D76C00022878 /* UIKit.framework */,
 				78E298851A0D0071007953FB /* PSTAlertViewControllerSample */,
 				78E2989F1A0D0071007953FB /* PSTAlertViewControllerSampleTests */,
 				78E298841A0D0071007953FB /* Products */,
