@@ -119,7 +119,11 @@
         } else {
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < 80000
             if (preferredStyle == PSTAlertControllerStyleActionSheet) {
-                _strongSheetStorage = [[UIActionSheet alloc] initWithTitle:title delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
+                NSString *titleAndMessage = title;
+                if (title && message) {
+                    titleAndMessage = [NSString stringWithFormat:@"%@\n%@", title, message];
+                }
+                _strongSheetStorage = [[UIActionSheet alloc] initWithTitle:titleAndMessage delegate:self cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
             } else {
                 _strongSheetStorage = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:nil otherButtonTitles:nil];
             }
