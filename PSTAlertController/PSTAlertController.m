@@ -100,6 +100,10 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Initialization
 
+- (instancetype)init {
+    return [self init];
+}
+
 - (BOOL)alertControllerAvailable {
     return [UIAlertController class] != nil; // iOS 8 and later.
 }
