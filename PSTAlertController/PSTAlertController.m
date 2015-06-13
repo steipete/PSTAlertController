@@ -100,16 +100,16 @@
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Initialization
 
-- (instancetype)init {
-    return [self init];
-}
-
 - (BOOL)alertControllerAvailable {
     return [UIAlertController class] != nil; // iOS 8 and later.
 }
 
 + (instancetype)alertControllerWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle {
     return [[self alloc] initWithTitle:title message:message preferredStyle:preferredStyle];
+}
+
+- (instancetype)init NS_UNAVAILABLE {
+    assert(0);
 }
 
 - (instancetype)initWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle {
