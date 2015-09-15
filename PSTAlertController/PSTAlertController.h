@@ -55,6 +55,7 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 // Generic initializer
 + (instancetype)alertControllerWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
+- (instancetype)init NS_UNAVAILABLE;
 
 // Add action.
 - (void)addAction:(PSTAlertAction *)action;
