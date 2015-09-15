@@ -137,9 +137,8 @@
     return [NSString stringWithFormat:@"<%@: %p, title:%@, actions:%@>", NSStringFromClass(self.class), self, self.title, self.actions];
 }
 
-- (void)setTitle:(NSString *)title
-{
-    _title = title;
+- (void)setTitle:(NSString *)title {
+    _title = [title copy];
     _alertController.title = title;
 
     id obj = self.strongSheetStorage ?: self.weakSheetStorage;
@@ -148,9 +147,8 @@
     }
 }
 
-- (void)setMessage:(NSString *)message
-{
-    _message = message;
+- (void)setMessage:(NSString *)message {
+    _message = [message copy];
     _alertController.message = message;
 
     id obj = self.strongSheetStorage ?: self.weakSheetStorage;
