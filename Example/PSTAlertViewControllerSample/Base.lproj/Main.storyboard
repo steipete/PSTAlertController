@@ -30,12 +30,22 @@
                                     <action selector="testButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1TS-0W-adq"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3ry-HB-NNt">
+                                <rect key="frame" x="338" y="268" width="92" height="30"/>
+                                <animations/>
+                                <state key="normal" title="Do the dance"/>
+                                <connections>
+                                    <action selector="doTheDance:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Kff-0Z-fYE"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="NAa-Py-WRi" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="2aS-cz-kb3"/>
                             <constraint firstItem="NAa-Py-WRi" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="90" id="4pj-XW-nCu"/>
+                            <constraint firstItem="3ry-HB-NNt" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="kX0-4W-9Dc"/>
+                            <constraint firstItem="3ry-HB-NNt" firstAttribute="top" secondItem="NAa-Py-WRi" secondAttribute="bottom" constant="128" id="v41-x0-RFK"/>
                         </constraints>
                     </view>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="iPad"/>
