@@ -43,7 +43,6 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @interface PSTAlertAction : NSObject
 + (instancetype)actionWithTitle:(NSString *)title style:(PSTAlertActionStyle)style handler:(void (^)(PSTAlertAction *action))handler;
 + (instancetype)actionWithTitle:(NSString *)title handler:(void (^)(PSTAlertAction *action))handler;
-@property (nonatomic, copy, readonly) NSString *title;
 @property (nonatomic, readonly) PSTAlertActionStyle style;
 
 @property (nonatomic, weak) PSTAlertController *alertController; // weak connection
@@ -55,6 +54,7 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 // Generic initializer
 + (instancetype)alertControllerWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
+- (instancetype)init NS_UNAVAILABLE;
 
 // Add action.
 - (void)addAction:(PSTAlertAction *)action;

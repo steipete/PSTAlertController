@@ -137,6 +137,32 @@
     return [NSString stringWithFormat:@"<%@: %p, title:%@, actions:%@>", NSStringFromClass(self.class), self, self.title, self.actions];
 }
 
+- (void)setTitle:(NSString *)title {
+    _title = [title copy];
+    _alertController.title = title;
+
+    id obj = self.strongSheetStorage ?: self.weakSheetStorage;
+    if ([obj respondsToSelector:@selector(setTitle:)]) {
+        [obj setTitle:title];
+    }
+}
+
+- (void)setMessage:(NSString *)message {
+    _message = [message copy];
+    _alertController.message = message;
+
+    id obj = self.strongSheetStorage ?: self.weakSheetStorage;
+    if ([obj respondsToSelector:@selector(setMessage:)]) {
+        [obj setMessage:message];
+    } else if ([obj respondsToSelector:@selector(setTitle:)]) {
+        NSString *final = message;
+        if (_title && message) {
+            final = [NSString stringWithFormat:@"%@\n%@", _title, message];
+        }
+        [obj setTitle:final];
+    }
+}
+
 - (void)dealloc {
     // In case the alert controller can't be displayed for any reason,
     // We'd still increment the counter and need to do the cleanup work here.
