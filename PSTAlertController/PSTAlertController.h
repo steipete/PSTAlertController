@@ -41,8 +41,8 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 // Defines a single button/action.
 @interface PSTAlertAction : NSObject
-+ (instancetype)actionWithTitle:(NSString *)title style:(PSTAlertActionStyle)style handler:(void (^)(PSTAlertAction *action))handler;
-+ (instancetype)actionWithTitle:(NSString *)title handler:(void (^)(PSTAlertAction *action))handler;
++ (nonnull instancetype)actionWithTitle:(nonnull NSString *)title style:(PSTAlertActionStyle)style handler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler;
++ (nonnull instancetype)actionWithTitle:(nonnull NSString *)title handler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler;
 @property (nonatomic, readonly) PSTAlertActionStyle style;
 
 @property (nonatomic, weak) PSTAlertController *alertController; // weak connection
@@ -53,33 +53,33 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @interface PSTAlertController : NSObject
 
 // Generic initializer
-+ (instancetype)alertControllerWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
-- (instancetype)init NS_UNAVAILABLE;
++ (nonnull instancetype)alertControllerWithTitle:(nullable NSString *)title message:(nullable NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
+- (nonnull instancetype)init NS_UNAVAILABLE;
 
 // Add action.
-- (void)addAction:(PSTAlertAction *)action;
+- (void)addAction:(nonnull PSTAlertAction *)action;
 
 // Add block that is called after the alert controller will be dismissed (before animation).
-- (void)addWillDismissBlock:(void (^)(PSTAlertAction *action))willDismissBlock;
+- (void)addWillDismissBlock:(void (^ __nonnull)(PSTAlertAction * __nonnull action))willDismissBlock;
 
 // Add block that is called after the alert view has been dismissed (after animation).
-- (void)addDidDismissBlock:(void (^)(PSTAlertAction *action))didDismissBlock;
+- (void)addDidDismissBlock:(void (^ __nonnull)(PSTAlertAction * __nonnull action))didDismissBlock;
 
-@property (nonatomic, copy, readonly) NSArray *actions;
+@property (nullable, nonatomic, copy, readonly) NSArray<PSTAlertAction *> *actions;
 
 // Text field support
-- (void)addTextFieldWithConfigurationHandler:(void (^)(UITextField *textField))configurationHandler;
-@property (nonatomic, readonly) NSArray *textFields;
+- (void)addTextFieldWithConfigurationHandler:(void (^ __nullable)(UITextField * __nonnull textField))configurationHandler;
+@property (nullable, nonatomic, readonly) NSArray<UITextField *> *textFields;
 
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, copy) NSString *message;
+@property (nullable, nonatomic, copy) NSString *title;
+@property (nullable, nonatomic, copy) NSString *message;
 
 @property (nonatomic, readonly) PSTAlertControllerStyle preferredStyle;
 
 // Presentation and dismissal
-- (void)showWithSender:(id)sender controller:(UIViewController *)controller animated:(BOOL)animated completion:(void (^)(void))completion;
-- (void)showWithSender:(id)sender arrowDirection:(UIPopoverArrowDirection)arrowDirection controller:(UIViewController *)controller animated:(BOOL)animated completion:(void (^)(void))completion;
-- (void)dismissAnimated:(BOOL)animated completion:(void (^)(void))completion;
+- (void)showWithSender:(nullable id)sender controller:(nullable UIViewController *)controller animated:(BOOL)animated completion:(void (^ __nullable)(void))completion;
+- (void)showWithSender:(nullable id)sender arrowDirection:(UIPopoverArrowDirection)arrowDirection controller:(nullable UIViewController *)controller animated:(BOOL)animated completion:(void (^ __nullable)(void))completion;
+- (void)dismissAnimated:(BOOL)animated completion:(void (^ __nullable)(void))completion;
 
 + (BOOL)hasVisibleAlertController;
 @property (nonatomic, readonly, getter=isVisible) BOOL visible;
@@ -89,34 +89,34 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @interface PSTAlertController (Convenience)
 
 // Convenience initializers
-+ (instancetype)actionSheetWithTitle:(NSString *)title;
-+ (instancetype)alertWithTitle:(NSString *)title message:(NSString *)message;
++ (nonnull instancetype)actionSheetWithTitle:(nullable NSString *)title;
++ (nonnull instancetype)alertWithTitle:(nullable NSString *)title message:(nullable NSString *)message;
 
 // Convenience. Presents a simple alert with a "Dismiss" button.
 // Will use the root view controller if `controller` is nil.
-+ (instancetype)presentDismissableAlertWithTitle:(NSString *)title message:(NSString *)message controller:(UIViewController *)controller;
++ (nonnull instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title message:(nullable NSString *)message controller:(nullable UIViewController *)controller;
 
 // Variant that will present an error.
-+ (instancetype)presentDismissableAlertWithTitle:(NSString *)title error:(NSError *)error controller:(UIViewController *)controller;
++ (nonnull instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title error:(nullable NSError *)error controller:(nullable UIViewController *)controller;
 
 // From Apple's HIG:
 // In a two-button alert that proposes a potentially risky action, the button that cancels the action should be on the right (and light-colored).
 // In a two-button alert that proposes a benign action that people are likely to want, the button that cancels the action should be on the left (and dark-colored).
-- (void)addCancelActionWithHandler:(void (^)(PSTAlertAction *action))handler; // convenience
+- (void)addCancelActionWithHandler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler; // convenience
 
-@property (nonatomic, readonly) UITextField *textField;
+@property (nullable, nonatomic, readonly) UITextField *textField;
 
 @end
 
 
 @interface PSTAlertController (Internal)
 
-@property (nonatomic, strong, readonly) UIAlertController *alertController;
+@property (nullable, nonatomic, strong, readonly) UIAlertController *alertController;
 
-@property (nonatomic, strong, readonly) UIActionSheet *actionSheet;
-@property (nonatomic, strong, readonly) UIAlertView *alertView;
+@property (nullable, nonatomic, strong, readonly) UIActionSheet *actionSheet;
+@property (nullable, nonatomic, strong, readonly) UIAlertView *alertView;
 
 // One if the above three.
-@property (nonatomic, strong, readonly) id presentedObject;
+@property (nullable, nonatomic, strong, readonly) id presentedObject;
 
 @end
