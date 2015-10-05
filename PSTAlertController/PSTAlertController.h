@@ -26,6 +26,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 typedef NS_ENUM(NSInteger, PSTAlertControllerStyle) {
     PSTAlertControllerStyleActionSheet = 0,
     PSTAlertControllerStyleAlert
@@ -41,11 +43,12 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 // Defines a single button/action.
 @interface PSTAlertAction : NSObject
-+ (nonnull instancetype)actionWithTitle:(nonnull NSString *)title style:(PSTAlertActionStyle)style handler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler;
-+ (nonnull instancetype)actionWithTitle:(nonnull NSString *)title handler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler;
++ (instancetype)actionWithTitle:(NSString *)title style:(PSTAlertActionStyle)style handler:(void (^ __nullable)(PSTAlertAction *action))handler;
++ (instancetype)actionWithTitle:(NSString *)title handler:(void (^ __nullable)(PSTAlertAction *action))handler;
 @property (nonatomic, readonly) PSTAlertActionStyle style;
 
 @property (nonatomic, weak) PSTAlertController *alertController; // weak connection
+
 @end
 
 // Mashup of UIAlertController with fallback methods for iOS 7.
@@ -53,22 +56,22 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @interface PSTAlertController : NSObject
 
 // Generic initializer
-+ (nonnull instancetype)alertControllerWithTitle:(nullable NSString *)title message:(nullable NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
-- (nonnull instancetype)init NS_UNAVAILABLE;
++ (instancetype)alertControllerWithTitle:(nullable NSString *)title message:(nullable NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle;
+- (instancetype)init NS_UNAVAILABLE;
 
 // Add action.
-- (void)addAction:(nonnull PSTAlertAction *)action;
+- (void)addAction:(PSTAlertAction *)action;
 
 // Add block that is called after the alert controller will be dismissed (before animation).
-- (void)addWillDismissBlock:(void (^ __nonnull)(PSTAlertAction * __nonnull action))willDismissBlock;
+- (void)addWillDismissBlock:(void (^)(PSTAlertAction *action))willDismissBlock;
 
 // Add block that is called after the alert view has been dismissed (after animation).
-- (void)addDidDismissBlock:(void (^ __nonnull)(PSTAlertAction * __nonnull action))didDismissBlock;
+- (void)addDidDismissBlock:(void (^)(PSTAlertAction *action))didDismissBlock;
 
 @property (nullable, nonatomic, copy, readonly) NSArray<PSTAlertAction *> *actions;
 
 // Text field support
-- (void)addTextFieldWithConfigurationHandler:(void (^ __nullable)(UITextField * __nonnull textField))configurationHandler;
+- (void)addTextFieldWithConfigurationHandler:(void (^ __nullable)(UITextField *textField))configurationHandler;
 @property (nullable, nonatomic, readonly) NSArray<UITextField *> *textFields;
 
 @property (nullable, nonatomic, copy) NSString *title;
@@ -89,20 +92,20 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @interface PSTAlertController (Convenience)
 
 // Convenience initializers
-+ (nonnull instancetype)actionSheetWithTitle:(nullable NSString *)title;
-+ (nonnull instancetype)alertWithTitle:(nullable NSString *)title message:(nullable NSString *)message;
++ (instancetype)actionSheetWithTitle:(nullable NSString *)title;
++ (instancetype)alertWithTitle:(nullable NSString *)title message:(nullable NSString *)message;
 
 // Convenience. Presents a simple alert with a "Dismiss" button.
 // Will use the root view controller if `controller` is nil.
-+ (nonnull instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title message:(nullable NSString *)message controller:(nullable UIViewController *)controller;
++ (instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title message:(nullable NSString *)message controller:(nullable UIViewController *)controller;
 
 // Variant that will present an error.
-+ (nonnull instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title error:(nullable NSError *)error controller:(nullable UIViewController *)controller;
++ (instancetype)presentDismissableAlertWithTitle:(nullable NSString *)title error:(nullable NSError *)error controller:(nullable UIViewController *)controller;
 
 // From Apple's HIG:
 // In a two-button alert that proposes a potentially risky action, the button that cancels the action should be on the right (and light-colored).
 // In a two-button alert that proposes a benign action that people are likely to want, the button that cancels the action should be on the left (and dark-colored).
-- (void)addCancelActionWithHandler:(void (^ __nullable)(PSTAlertAction * __nonnull action))handler; // convenience
+- (void)addCancelActionWithHandler:(void (^ __nullable)(PSTAlertAction *action))handler; // convenience
 
 @property (nullable, nonatomic, readonly) UITextField *textField;
 
@@ -120,3 +123,5 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 @property (nullable, nonatomic, strong, readonly) id presentedObject;
 
 @end
+
+NS_ASSUME_NONNULL_END
