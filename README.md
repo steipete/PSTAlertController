@@ -12,7 +12,7 @@ It's a commercial library, but sometimes I just love to share.
 
 ## Compatbility
 
-Tested with iOS 7 upwards, Xcode 6.1 and ARC.
+Tested with iOS 7-9, Xcode 7 and ARC.
 
 ## License
 
