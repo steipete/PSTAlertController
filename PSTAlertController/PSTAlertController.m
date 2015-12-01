@@ -221,6 +221,18 @@
     }
 }
 
+- (void)addActions:(PSTAlertAction *)firstAction, ... {
+    PSTAlertAction *action;
+    va_list argumentList;
+    if (firstAction) {
+        [self addAction:(PSTAlertAction *)firstAction];
+        va_start(argumentList, firstAction);
+        while ((action = va_arg(argumentList, PSTAlertAction *)))
+            [self addAction: action];
+        va_end(argumentList);
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Text Field Support
 
