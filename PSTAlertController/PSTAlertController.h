@@ -62,10 +62,16 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 // Add action.
 - (void)addAction:(PSTAlertAction *)action;
 
+// Add block that is called before the alert controller will be presented (before animation).
+- (void)addWillPresentBlock:(void (^)(void))willPresentBlock;
+
+// Add block that is called before the alert controller has been presented (after animation).
+- (void)addDidPresentBlock:(void (^)(void))didPresentBlock;
+
 // Add block that is called after the alert controller will be dismissed (before animation).
 - (void)addWillDismissBlock:(void (^)(PSTAlertAction *action))willDismissBlock;
 
-// Add block that is called after the alert view has been dismissed (after animation).
+// Add block that is called after the alert controller has been dismissed (after animation).
 - (void)addDidDismissBlock:(void (^)(PSTAlertAction *action))didDismissBlock;
 
 @property (nullable, nonatomic, copy, readonly) NSArray<PSTAlertAction *> *actions;
