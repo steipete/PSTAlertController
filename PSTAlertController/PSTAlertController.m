@@ -374,6 +374,8 @@ static NSUInteger PSTVisibleAlertsCount = 0;
             [self.alertView show];
             [self moveSheetToWeakStorage];
         }
+        // This is called before the animation is complete, but at least it's called.
+        if (completion) completion();
     }
     [self setIsShowingAlert:YES];
 }
