@@ -291,6 +291,7 @@ static NSUInteger PSTVisibleAlertsCount = 0;
             }
 
             if (!controller) {
+                if (completion) completion();
                 NSLog(@"Can't show alert because there is no root view controller.");
                 return;
             }
@@ -354,6 +355,7 @@ static NSUInteger PSTVisibleAlertsCount = 0;
             // Will not be called if presenting fails because another present/dismissal already happened during that runloop.
             // rdar://problem/19045528
             objc_setAssociatedObject(controller, _cmd, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+            if (completion) completion();
         }];
 
     } else {
