@@ -61,6 +61,7 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 // Add action.
 - (void)addAction:(PSTAlertAction *)action;
+- (void)addActions:(PSTAlertAction *)firstAction, ... NS_REQUIRES_NIL_TERMINATION;
 
 // Add block that is called after the alert controller will be dismissed (before animation).
 - (void)addWillDismissBlock:(void (^)(PSTAlertAction *action))willDismissBlock;
