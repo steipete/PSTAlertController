@@ -505,6 +505,20 @@ static NSUInteger PSTVisibleAlertsCount = 0;
     [self viewDidDismissWithButtonIndex:buttonIndex];
 }
 
+- (void)willPresentActionSheet:(UIActionSheet *)actionSheet {
+    for (UIView *subview in actionSheet.subviews) {
+        if ([subview isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton *)subview;
+            if (button.tag != (actionSheet.destructiveButtonIndex + 1)) {
+                UIColor *windowTintColor = [UIApplication sharedApplication].delegate.window.tintColor;
+                if (windowTintColor) {
+                    [button setTitleColor:windowTintColor forState:UIControlStateNormal];
+                }
+            }
+        }
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIAlertViewDelegate
 
