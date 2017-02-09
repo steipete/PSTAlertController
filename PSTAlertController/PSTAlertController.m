@@ -323,19 +323,18 @@ static NSUInteger PSTVisibleAlertsCount = 0;
             }
 
             // optimize arrow positioning for up and down.
-            UIPopoverPresentationController *popover = controller.popoverPresentationController;
-                popover.permittedArrowDirections = arrowDirection;
-                switch (arrowDirection) {
-                    case UIPopoverArrowDirectionDown:
-                        popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y, 1.f, 1.f);
-                        break;
-                    case UIPopoverArrowDirectionUp:
-                        popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height, 1.f, 1.f);
-                        break;
-                    // Left and right is too buggy.
-                    default:
-                        break;
-                }
+            popoverPresentation.permittedArrowDirections = arrowDirection;
+            switch (arrowDirection) {
+                case UIPopoverArrowDirectionDown:
+                    popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y, 1.f, 1.f);
+                    break;
+                case UIPopoverArrowDirectionUp:
+                    popoverPresentation.sourceRect = CGRectMake(r.origin.x + r.size.width/2.f, r.origin.y + r.size.height, 1.f, 1.f);
+                    break;
+                // Left and right is too buggy.
+                default:
+                    break;
+            }
         }
 
         // Hook up dismiss blocks.
