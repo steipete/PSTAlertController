@@ -287,6 +287,9 @@ static NSUInteger PSTVisibleAlertsCount = 0;
 
             // Use the frontmost viewController for presentation.
             while (controller.presentedViewController) {
+                if([controller.presentedViewController isBeingDismissed]) {
+                    break;
+                }
                 controller = controller.presentedViewController;
             }
 
