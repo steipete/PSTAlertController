@@ -45,11 +45,23 @@
 @end
 
 @interface PSTExtendedAlertController : UIAlertController
+@property (nonatomic, copy) void (^viewWillAppearBlock)(void);
+@property (nonatomic, copy) void (^viewDidAppearBlock)(void);
 @property (nonatomic, copy) void (^viewWillDisappearBlock)(void);
 @property (nonatomic, copy) void (^viewDidDisappearBlock)(void);
 @end
 
 @implementation PSTExtendedAlertController
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    if (self.viewWillAppearBlock) self.viewWillAppearBlock();
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.viewDidAppearBlock) self.viewDidAppearBlock();
+}
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
@@ -70,6 +82,8 @@
 }
 - (instancetype)initWithTitle:(NSString *)title message:(NSString *)message preferredStyle:(PSTAlertControllerStyle)preferredStyle NS_DESIGNATED_INITIALIZER;
 
+@property (nonatomic, copy) NSArray *willPresentBlocks;
+@property (nonatomic, copy) NSArray *didPresentBlocks;
 @property (nonatomic, copy) NSArray *willDismissBlocks;
 @property (nonatomic, copy) NSArray *didDismissBlocks;
 
@@ -339,18 +353,26 @@ static NSUInteger PSTVisibleAlertsCount = 0;
 
         // Hook up dismiss blocks.
         __weak typeof (self) weakSelf = self;
+        alertController.viewWillAppearBlock = ^{
+            typeof (self) strongSelf = weakSelf;
+            [strongSelf performPresentBlocks:PROPERTY(willPresentBlocks)];
+        };
+        alertController.viewDidAppearBlock = ^{
+            typeof (self) strongSelf = weakSelf;
+            [strongSelf performPresentBlocks:PROPERTY(didPresentBlocks)];
+        };
         alertController.viewWillDisappearBlock = ^{
             typeof (self) strongSelf = weakSelf;
-            [strongSelf performBlocks:PROPERTY(willDismissBlocks) withAction:strongSelf.executedAlertAction];
+            [strongSelf performDismissBlocks:PROPERTY(willDismissBlocks) withAction:strongSelf.executedAlertAction];
             [strongSelf setIsShowingAlert:NO];
         };
         alertController.viewDidDisappearBlock = ^{
             typeof (self) strongSelf = weakSelf;
-            [strongSelf performBlocks:PROPERTY(didDismissBlocks) withAction:strongSelf.executedAlertAction];
+            [strongSelf performDismissBlocks:PROPERTY(didDismissBlocks) withAction:strongSelf.executedAlertAction];
         };
 
         [controller presentViewController:alertController animated:animated completion:^{
-            // Bild lifetime of self to the controller.
+            // Bind lifetime of self to the controller.
             // Will not be called if presenting fails because another present/dismissal already happened during that runloop.
             // rdar://problem/19045528
             objc_setAssociatedObject(controller, _cmd, self, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -438,6 +460,16 @@ static NSUInteger PSTVisibleAlertsCount = 0;
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Will/Did Dismiss Observers
 
+- (void)addWillPresentBlock:(void (^)(void))willPresentBlock {
+    NSParameterAssert(willPresentBlock);
+    self.willPresentBlocks = [[NSArray arrayWithArray:self.willPresentBlocks] arrayByAddingObject:willPresentBlock];
+}
+
+- (void)addDidPresentBlock:(void (^)(void))didPresentBlock {
+    NSParameterAssert(didPresentBlock);
+    self.didPresentBlocks = [[NSArray arrayWithArray:self.didPresentBlocks] arrayByAddingObject:didPresentBlock];
+}
+
 - (void)addWillDismissBlock:(void (^)(PSTAlertAction *action))willDismissBlock {
     NSParameterAssert(willDismissBlock);
     self.willDismissBlocks = [[NSArray arrayWithArray:self.willDismissBlocks] arrayByAddingObject:willDismissBlock];
@@ -466,7 +498,17 @@ static NSUInteger PSTVisibleAlertsCount = 0;
     return index >= 0 ? self.actions[index] : nil;
 }
 
-- (void)performBlocks:(NSString *)blocksStorageName withAction:(PSTAlertAction *)alertAction {
+- (void)performPresentBlocks:(NSString *)blocksStorageName {
+    // Load variable and nil out.
+    NSArray *blocks = [self valueForKey:blocksStorageName];
+    [self setValue:nil forKey:blocksStorageName];
+
+    for (void (^block)(void) in blocks) {
+        block();
+    }
+}
+
+- (void)performDismissBlocks:(NSString *)blocksStorageName withAction:(PSTAlertAction *)alertAction {
     // Load variable and nil out.
     NSArray *blocks = [self valueForKey:blocksStorageName];
     [self setValue:nil forKey:blocksStorageName];
@@ -476,12 +518,19 @@ static NSUInteger PSTVisibleAlertsCount = 0;
     }
 }
 
+- (void)viewWillPresent {
+    [self performPresentBlocks:PROPERTY(willPresentBlocks)];
+}
+
+- (void)viewDidPresent {
+    [self performPresentBlocks:PROPERTY(didPresentBlocks)];
+}
+
 - (void)viewWillDismissWithButtonIndex:(NSInteger)buttonIndex {
     PSTAlertAction *action = [self actionForButtonIndex:buttonIndex];
     self.executedAlertAction = action;
 
-    [self performBlocks:PROPERTY(willDismissBlocks) withAction:action];
-    self.willDismissBlocks = nil;
+    [self performDismissBlocks:PROPERTY(willDismissBlocks) withAction:action];
 
     [self setIsShowingAlert:NO];
 }
@@ -490,11 +539,21 @@ static NSUInteger PSTVisibleAlertsCount = 0;
     PSTAlertAction *action = [self actionForButtonIndex:buttonIndex];
     [action performAction];
 
-    [self performBlocks:PROPERTY(didDismissBlocks) withAction:action];
+    [self performDismissBlocks:PROPERTY(didDismissBlocks) withAction:action];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIActionSheetDelegate
+
+- (void)willPresentActionSheet:(UIActionSheet *)actionSheet
+{
+    [self viewWillPresent];
+}
+
+- (void)didPresentActionSheet:(UIActionSheet *)actionSheet
+{
+    [self viewDidPresent];
+}
 
 - (void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex {
     [self viewWillDismissWithButtonIndex:buttonIndex];
@@ -507,6 +566,16 @@ static NSUInteger PSTVisibleAlertsCount = 0;
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIAlertViewDelegate
+
+- (void)willPresentAlertView:(UIAlertView *)alertView
+{
+    [self viewWillPresent];
+}
+
+- (void)didPresentAlertView:(UIAlertView *)alertView
+{
+    [self viewDidPresent];
+}
 
 - (void)alertView:(UIAlertView *)alertView willDismissWithButtonIndex:(NSInteger)buttonIndex {
     [self viewWillDismissWithButtonIndex:buttonIndex];
