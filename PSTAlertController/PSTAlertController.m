@@ -150,17 +150,6 @@
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - Accessors
-
-//- (UIAlertView *)alertView {
-//    return (UIAlertView *)(self.strongSheetStorage ?: self.weakSheetStorage);
-//}
-//
-//- (UIActionSheet *)actionSheet {
-//    return (UIActionSheet *)(self.strongSheetStorage ?: self.weakSheetStorage);
-//}
-
-///////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Adding Actions
 
 - (void)addAction:(PSTAlertAction *)action {
