@@ -116,9 +116,6 @@ typedef NS_ENUM(NSInteger, PSTAlertActionStyle) {
 
 @property (nullable, nonatomic, strong, readonly) UIAlertController *alertController;
 
-@property (nullable, nonatomic, strong, readonly) UIActionSheet *actionSheet;
-@property (nullable, nonatomic, strong, readonly) UIAlertView *alertView;
-
 // One if the above three.
 @property (nullable, nonatomic, strong, readonly) id presentedObject;
 
